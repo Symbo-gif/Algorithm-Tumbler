@@ -1,0 +1,7 @@
+# Bytecode and cache artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# Pytest cache
+.pytest_cache/
