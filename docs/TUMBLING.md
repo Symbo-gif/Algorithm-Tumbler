@@ -37,8 +37,9 @@ Options:
 ## Results
 
 The self-tumbling process on this repository extracts approximately:
-- **275 components** from **34 Python files**
-- Combined with the 4 seed components for a total of **~246 components**
+- **279 function components** from **35 Python files** (including tumble_self.py itself)
+- Combined with the 4 seed components for a total of **~250 unique components**
+  - Note: Some duplicate component IDs are merged (e.g., functions with common names like `__init__`)
 
 Components are organized by module:
 - Core DSL functions

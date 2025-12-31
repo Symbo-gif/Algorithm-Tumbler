@@ -45,9 +45,13 @@ def find_python_files(root_dir: Path) -> List[Path]:
     return sorted(python_files)
 
 
-def tumble_file(file_path: Path) -> List:
+def tumble_file(file_path: Path, repo_root: Path) -> List:
     """Process a single Python file through the tumbler to extract components."""
-    print(f"  Tumbling: {file_path.relative_to(file_path.parents[len(file_path.parts) - file_path.parts.index('Algorithm-Tumbler') - 2])}")
+    try:
+        relative_path = file_path.relative_to(repo_root)
+        print(f"  Tumbling: {relative_path}")
+    except ValueError:
+        print(f"  Tumbling: {file_path.name}")
     
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -90,7 +94,7 @@ def main():
     total_extracted = 0
     
     for py_file in python_files:
-        components = tumble_file(py_file)
+        components = tumble_file(py_file, repo_root)
         
         # Add components to library
         for comp in components:

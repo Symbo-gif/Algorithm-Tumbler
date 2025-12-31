@@ -10,7 +10,7 @@
 # limitations under the License.
 
 import ast
-from typing import List, Set
+from typing import List
 from ..core.node import Component, DSLPrimitive
 from ..core.types import INT, LIST
 from .strategies import DecompositionStrategy
