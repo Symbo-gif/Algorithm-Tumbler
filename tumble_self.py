@@ -99,9 +99,11 @@ def main():
         # Add components to library
         for comp in components:
             try:
-                # Generate a unique ID based on file and function name
+                # Generate a unique ID based on full relative path and function name
+                # This helps avoid collisions between files with the same name
                 relative_path = py_file.relative_to(repo_root)
-                comp_id = f"{relative_path.stem}_{comp.pattern.name}"
+                path_str = str(relative_path.with_suffix('')).replace('/', '_').replace('\\', '_')
+                comp_id = f"{path_str}_{comp.pattern.name}"
                 library.add(comp, comp_id)
                 total_extracted += 1
             except Exception as e:

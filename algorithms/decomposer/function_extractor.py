@@ -73,6 +73,8 @@ class FunctionLevelDecomposer(DecompositionStrategy):
         output_type = INT  # Default return type
         
         # Create a placeholder function (actual execution would require more complex setup)
+        # Note: Extracted functions cannot be executed directly as they lack the original
+        # context, imports, and closure state. They serve as metadata for the library.
         def placeholder_fn(*args):
             raise NotImplementedError(f"Extracted function {func_name} cannot be executed directly")
         

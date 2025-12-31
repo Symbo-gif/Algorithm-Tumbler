@@ -115,14 +115,18 @@ def main():
                 for comp in components:
                     try:
                         relative_path = py_file.relative_to(root_dir)
-                        comp_id = f"{relative_path.stem}_{comp.pattern.name}"
+                        # Use full path to avoid ID collisions
+                        path_str = str(relative_path.with_suffix('')).replace('/', '_').replace('\\', '_')
+                        comp_id = f"{path_str}_{comp.pattern.name}"
                         library.add(comp, comp_id)
                         total_extracted += 1
-                    except (ValueError, AttributeError, KeyError):
+                    except (ValueError, AttributeError, KeyError) as e:
                         # Skip components that can't be added (duplicate IDs, invalid structure)
+                        # Silently skip to avoid cluttering output in batch processing
                         pass
-            except (IOError, OSError, UnicodeDecodeError):
+            except (IOError, OSError, UnicodeDecodeError) as e:
                 # Skip files that can't be read
+                # Silently skip to avoid cluttering output in batch processing
                 pass
         
         # Save library

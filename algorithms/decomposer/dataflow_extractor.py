@@ -39,7 +39,12 @@ class DataFlowExtractor(DecompositionStrategy):
         return components
 
     def _extract_assignment(self, assign_node: ast.Assign) -> Component:
-        """Extract a simple assignment as a data flow component."""
+        """Extract a simple assignment as a data flow component.
+        
+        Note: This is a placeholder implementation for future development.
+        Full data flow extraction would analyze variable dependencies and
+        transformation patterns.
+        """
         # Simplified: create a placeholder component
         primitive = DSLPrimitive([], INT, [])
         
