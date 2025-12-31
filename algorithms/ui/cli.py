@@ -41,8 +41,7 @@ def main():
     args = parser.parse_args()
 
     if args.command == 'init':
-        library = ComponentLibrary()
-        # Load seed algorithms (placeholder)
+        library = ComponentLibrary.seed_default()
         library.save('library.json')
         print("Library initialized")
 
