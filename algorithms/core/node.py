@@ -48,8 +48,9 @@ class Component:
 
     def instantiate(self) -> ASTNode:
         """Return a copy of the pattern for use."""
-        # For now, just return the pattern; in full impl, handle parameters
-        return self.pattern
+        # For now, return a shallow copy of the pattern to avoid shared state
+        import copy
+        return copy.deepcopy(self.pattern)
 
     def __repr__(self):
         return f"Component(cost={self.cost}, freq={self.frequency})"

@@ -10,6 +10,7 @@
 # limitations under the License.
 
 from typing import List, Any, Dict
+import copy
 from .node import ASTNode
 from .types import Type
 
@@ -70,6 +71,32 @@ class Program:
     def ast_size(self) -> int:
         """Return the size of the AST."""
         return sum(1 for node in self.nodes for _ in node.children) + len(self.nodes)
+
+    def copy(self) -> 'Program':
+        """Return a deep copy of the program."""
+        return Program(copy.deepcopy(self.nodes), copy.deepcopy(self.edges))
+
+    def extract_subtree(self, target: ASTNode) -> ASTNode:
+        """Return a copy of the subtree rooted at target."""
+        return copy.deepcopy(target)
+
+    def substitute_subtree(self, target: ASTNode, replacement: ASTNode) -> 'Program':
+        """Create a new program with one subtree replaced."""
+        new_nodes = []
+        for node in self.nodes:
+            new_nodes.append(replacement if node is target else node)
+
+        new_edges: Dict[ASTNode, List[ASTNode]] = {}
+        for parent, children in self.edges.items():
+            new_parent = replacement if parent is target else parent
+            new_children = [replacement if child is target else child for child in children]
+            new_edges[new_parent] = new_children
+
+        # Update child references inside nodes
+        for node in new_nodes:
+            node.children = [replacement if child is target else child for child in node.children]
+
+        return Program(new_nodes, new_edges)
 
     def __repr__(self):
         return f"Program(nodes={len(self.nodes)})"
