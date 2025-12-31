@@ -16,6 +16,14 @@ from ..core.types import Type, INT
 from .strategies import DecompositionStrategy
 
 
+# Constants for component cost and quality estimation
+MAX_SPEC_LENGTH = 100
+BASE_COST = 2.0
+PARAM_COST = 0.5
+DEFAULT_SUCCESS_RATE = 0.5
+DEFAULT_FREQUENCY = 1
+
+
 class FunctionPrimitive(DSLPrimitive):
     """DSL primitive that wraps a Python function."""
 
@@ -57,7 +65,7 @@ class FunctionLevelDecomposer(DecompositionStrategy):
         
         # Extract docstring for spec
         spec = ast.get_docstring(func_node) or f"function {func_name}"
-        spec = spec.strip().split('\n')[0][:100]  # First line, max 100 chars
+        spec = spec.strip().split('\n')[0][:MAX_SPEC_LENGTH]  # First line, max length
         
         # Infer types (simplified - use generic types)
         num_params = len(func_node.args.args)
@@ -82,10 +90,10 @@ class FunctionLevelDecomposer(DecompositionStrategy):
         component = Component(
             pattern=primitive,
             parameter_schema=parameter_schema,
-            cost=2.0 + num_params * 0.5,  # Cost based on complexity
+            cost=BASE_COST + num_params * PARAM_COST,  # Cost based on complexity
             spec=spec,
-            frequency=1,  # New component
-            success_rate=0.5,  # Unknown success rate
+            frequency=DEFAULT_FREQUENCY,  # New component
+            success_rate=DEFAULT_SUCCESS_RATE,  # Unknown success rate
         )
         
         return component
