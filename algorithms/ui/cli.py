@@ -10,6 +10,8 @@
 # limitations under the License.
 
 import argparse
+import sys
+from pathlib import Path
 from ..library.manager import ComponentLibrary
 from ..evolution.search import EvolutionarySearch
 
@@ -37,6 +39,11 @@ def main():
     # inspect
     inspect_parser = subparsers.add_parser('inspect', help='Inspect library')
     inspect_parser.add_argument('--top-k', type=int, default=10)
+
+    # tumble
+    tumble_parser = subparsers.add_parser('tumble', help='Process Python files to extract primitives')
+    tumble_parser.add_argument('--directory', default='.', help='Directory to scan for Python files')
+    tumble_parser.add_argument('--output', default='library_self_tumbled.json', help='Output library file')
 
     args = parser.parse_args()
 
@@ -71,6 +78,62 @@ def main():
         library = ComponentLibrary.load('library.json')
         for i, (cid, comp) in enumerate(list(library.components.items())[:args.top_k]):
             print(f"{i+1}. {cid}: {comp}")
+
+    elif args.command == 'tumble':
+        from ..decomposer.function_extractor import FunctionLevelDecomposer
+        
+        print("Algorithm Tumbler: Processing Python files...")
+        
+        # Start with seed library
+        library = ComponentLibrary.seed_default()
+        print(f"Starting with {len(library.components)} seed components")
+        
+        # Find Python files
+        root_dir = Path(args.directory)
+        python_files = []
+        exclude_dirs = {'.git', '__pycache__', '.pytest_cache', 'venv', 'env', '.venv'}
+        
+        for path in root_dir.rglob('*.py'):
+            if any(excluded in path.parts for excluded in exclude_dirs):
+                continue
+            if path.name == '__init__.py':
+                continue
+            python_files.append(path)
+        
+        print(f"Found {len(python_files)} Python files to process")
+        
+        # Process files
+        decomposer = FunctionLevelDecomposer()
+        total_extracted = 0
+        
+        for py_file in sorted(python_files):
+            try:
+                with open(py_file, 'r', encoding='utf-8') as f:
+                    code = f.read()
+                components = decomposer.decompose(code)
+                
+                for comp in components:
+                    try:
+                        relative_path = py_file.relative_to(root_dir)
+                        # Use full path to avoid ID collisions
+                        path_str = str(relative_path.with_suffix('')).replace('/', '_').replace('\\', '_')
+                        comp_id = f"{path_str}_{comp.pattern.name}"
+                        library.add(comp, comp_id)
+                        total_extracted += 1
+                    except (ValueError, AttributeError, KeyError) as e:
+                        # Skip components that can't be added (duplicate IDs, invalid structure)
+                        # Silently skip to avoid cluttering output in batch processing
+                        pass
+            except (IOError, OSError, UnicodeDecodeError) as e:
+                # Skip files that can't be read
+                # Silently skip to avoid cluttering output in batch processing
+                pass
+        
+        # Save library
+        library.save(args.output)
+        print(f"Extracted {total_extracted} components")
+        print(f"Total components in library: {len(library.components)}")
+        print(f"Saved to: {args.output}")
 
 if __name__ == '__main__':
     main()

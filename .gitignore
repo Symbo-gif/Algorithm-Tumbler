@@ -5,3 +5,7 @@ __pycache__/
 
 # Pytest cache
 .pytest_cache/
+
+# Generated library files
+library_self_tumbled.json
+library.json
