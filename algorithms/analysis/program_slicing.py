@@ -25,6 +25,12 @@ class ControlFlowGraph:
 
     def _build_cfg(self, ast_node: ast.AST):
         # Simplified CFG builder for function bodies
+        if isinstance(ast_node, ast.Module):
+            for stmt in ast_node.body:
+                if isinstance(stmt, ast.FunctionDef):
+                    self._build_cfg(stmt)
+            return
+
         if isinstance(ast_node, ast.FunctionDef):
             body = ast_node.body
             for i, stmt in enumerate(body):

@@ -731,7 +731,15 @@ class SymboLLMAdapter:
 
         try:
             # Load the source checkpoint
-            checkpoint = torch.load(checkpoint_path, map_location='cpu', weights_only=False)
+            try:
+                checkpoint = torch.load(checkpoint_path, map_location='cpu', weights_only=True)
+            except TypeError:
+                msg = (
+                    "PyTorch version does not support safe checkpoint loading with "
+                    "weights_only; merge aborted for safety"
+                )
+                self.logger.error(msg)
+                return {'success': False, 'error': msg}
             source_ks = checkpoint.get('knowledge_store', {})
 
             if not source_ks:
