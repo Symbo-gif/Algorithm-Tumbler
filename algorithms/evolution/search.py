@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 import random
 from ..core.program import Program
 from .mutations import subtree_mutation, crossover, guided_mutation
