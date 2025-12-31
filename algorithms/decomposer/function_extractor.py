@@ -12,7 +12,7 @@
 import ast
 from typing import List, Callable, Any
 from ..core.node import Component, DSLPrimitive
-from ..core.types import Type, INT, LIST, BOOL, STRING
+from ..core.types import Type, INT
 from .strategies import DecompositionStrategy
 
 

@@ -118,9 +118,11 @@ def main():
                         comp_id = f"{relative_path.stem}_{comp.pattern.name}"
                         library.add(comp, comp_id)
                         total_extracted += 1
-                    except Exception:
+                    except (ValueError, AttributeError, KeyError):
+                        # Skip components that can't be added (duplicate IDs, invalid structure)
                         pass
-            except Exception:
+            except (IOError, OSError, UnicodeDecodeError):
+                # Skip files that can't be read
                 pass
         
         # Save library
