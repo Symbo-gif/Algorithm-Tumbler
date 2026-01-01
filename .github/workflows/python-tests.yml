@@ -37,4 +37,9 @@ jobs:
           python -m pip show pytest >/dev/null 2>&1 || python -m pip install pytest
 
       - name: Run tests
-        run: pytest tests || pytest
+        run: |
+          if [ -d tests ]; then
+            pytest tests
+          else
+            pytest
+          fi
