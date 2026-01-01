@@ -38,7 +38,7 @@ jobs:
           elif [ -f setup.py ] || [ -f pyproject.toml ]; then
             python -m pip install .
           fi
-          if ! python -m pytest --version >/dev/null 2>&1; then
+          if ! python -c "import pytest" >/dev/null 2>&1; then
             echo "pytest not found; installing it for test run"
             python -m pip install pytest
           fi
@@ -49,8 +49,8 @@ jobs:
             pytest tests
           else
             find_tests_cmd='find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \)'
-            if $find_tests_cmd -print -quit | grep -q .; then
-              $find_tests_cmd -print0 | xargs -0 -r pytest
+            if eval "$find_tests_cmd -print -quit" | grep -q .; then
+              eval "$find_tests_cmd -print0" | xargs -0 -r pytest
             else
               echo "No test files found" && exit 1
             fi
