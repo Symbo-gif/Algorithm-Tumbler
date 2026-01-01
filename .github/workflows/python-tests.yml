@@ -48,9 +48,8 @@ jobs:
           if [ -d tests ]; then
             pytest tests
           else
-            find_tests_cmd='find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \)'
-            if eval "$find_tests_cmd -print -quit" | grep -q .; then
-              eval "$find_tests_cmd -print0" | xargs -0 -r pytest
+            if find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \) -print -quit | grep -q .; then
+              find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \) -print0 | xargs -0 -r pytest
             else
               echo "No test files found" && exit 1
             fi
