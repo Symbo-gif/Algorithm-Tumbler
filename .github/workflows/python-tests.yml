@@ -34,12 +34,21 @@ jobs:
           elif [ -f setup.py ] || [ -f pyproject.toml ]; then
             python -m pip install .
           fi
-          python -m pip show pytest >/dev/null 2>&1 || python -m pip install pytest
+          python - <<'PY'
+import importlib.util
+import subprocess
+import sys
+
+if importlib.util.find_spec("pytest") is None:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pytest"])
+PY
 
       - name: Run tests
         run: |
           if [ -d tests ]; then
             pytest tests
+          elif ls test_*.py *_test.py >/dev/null 2>&1; then
+            pytest test_*.py *_test.py
           else
-            pytest
+            echo "No test files found" && exit 1
           fi
