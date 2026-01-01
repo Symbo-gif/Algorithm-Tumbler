@@ -1,0 +1,56 @@
+name: Python Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements-dev.txt ]; then
+            python -m pip install -r requirements-dev.txt
+          elif [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          elif [ -f setup.py ] || [ -f pyproject.toml ]; then
+            python -m pip install .
+          fi
+          if ! python -c "import pytest" >/dev/null 2>&1; then
+            echo "pytest not found; installing it for test run"
+            python -m pip install pytest
+          fi
+
+      - name: Run tests
+        run: |
+          if [ -d tests ]; then
+            pytest tests
+          else
+            if find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \) -print -quit | grep -q .; then
+              find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \) -print0 | xargs -0 -r pytest
+            else
+              echo "No test files found" && exit 1
+            fi
+          fi
