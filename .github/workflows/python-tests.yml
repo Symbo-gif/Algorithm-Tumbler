@@ -34,14 +34,22 @@ jobs:
           elif [ -f setup.py ] || [ -f pyproject.toml ]; then
             python -m pip install .
           fi
-          python -c "import pytest" 2>/dev/null || python -m pip install pytest
+          if ! python - <<'PY'
+try:
+    import pytest  # noqa: F401
+except ImportError:
+    raise SystemExit(1)
+PY
+          then
+            python -m pip install pytest
+          fi
 
       - name: Run tests
         run: |
           if [ -d tests ]; then
             pytest tests
-          elif find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \) | grep -q .; then
-            pytest $(find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \))
+          elif test_files=$(find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \)); [ -n "$test_files" ]; then
+            pytest $test_files
           else
             echo "No test files found" && exit 1
           fi
