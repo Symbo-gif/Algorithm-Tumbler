@@ -1,6 +1,6 @@
 ## Summary
 
-- 
+- Brief description of changes
 
 ## Testing
 
