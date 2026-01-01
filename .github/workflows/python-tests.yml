@@ -34,16 +34,18 @@ jobs:
           elif [ -f setup.py ] || [ -f pyproject.toml ]; then
             python -m pip install .
           fi
-          python -m pytest --version >/dev/null 2>&1 || python -m pip install pytest
+          if ! python -m pytest --version >/dev/null 2>&1; then
+            echo "pytest not found; installing it for test run"
+            python -m pip install pytest
+          fi
 
       - name: Run tests
         run: |
           if [ -d tests ]; then
             pytest tests
           else
-            test_files=$(find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \))
-            if [ -n "$test_files" ]; then
-              pytest $test_files
+            if find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \) -print -quit | grep -q .; then
+              find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \) -print0 | xargs -0 -r pytest
             else
               echo "No test files found" && exit 1
             fi
