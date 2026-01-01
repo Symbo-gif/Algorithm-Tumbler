@@ -14,6 +14,10 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12']
 
     steps:
       - name: Checkout repository
@@ -22,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
@@ -44,8 +48,9 @@ jobs:
           if [ -d tests ]; then
             pytest tests
           else
-            if find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \) -print -quit | grep -q .; then
-              find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \) -print0 | xargs -0 -r pytest
+            find_tests_cmd='find . -maxdepth 1 -type f \( -name "test_*.py" -o -name "*_test.py" \)'
+            if $find_tests_cmd -print -quit | grep -q .; then
+              $find_tests_cmd -print0 | xargs -0 -r pytest
             else
               echo "No test files found" && exit 1
             fi
